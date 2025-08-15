@@ -36,14 +36,15 @@ if start_date > end_date:
     st.sidebar.error("⚠️ Erro: A data inicial não pode ser posterior à data final.")
 else:
     # --- Criação da Aba Única ---
-    tab_forecast, tab_production = st.tabs(["Previsão de Vendas", "Previsão de Produção"])
+    tab_production , tab_forecast = st.tabs([ "Previsão de Produção" , "Previsão de Vendas",])
+    with tab_production:
+        # A segunda aba usa a nova função, que não precisa de parâmetros
+        tab_sales_production_forecast() 
 
     with tab_forecast:
         tab_sales_forecast_report(start_date, end_date)
 
-    with tab_production:
-        # A segunda aba usa a nova função, que não precisa de parâmetros
-        tab_sales_production_forecast() 
+    
 
     # --- Status de Processamento na Barra Lateral (comum para a aba) ---
     st.sidebar.markdown("---")
