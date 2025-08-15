@@ -65,6 +65,17 @@ def tab_sales_forecast_report(start_date, end_date):
             var_name='Tipo de Faturamento',
             value_name='Valor'
         )
+        mapeamento_nomes = {
+        'Previsão de Faturamento': 'Previsão Total',
+        'Faturamento Realizado': 'Realizado Total',
+        'Previsão Vendas Loja': 'Previsão Loja',
+        'Vendas Realizadas Loja': 'Realizado Loja',
+        'Previsão Vendas Delivery': 'Previsão Delivery',
+        'Vendas Realizadas Delivery': 'Realizado Delivery'
+        }
+
+        df_long['Tipo de Faturamento'] = df_long['Tipo de Faturamento'].replace(mapeamento_nomes)
+
         # AQUI É A MUDANÇA: Substitua os valores zero por NaN para que não sejam exibidos no gráfico
         df_long['Valor'] = df_long['Valor'].replace(0, np.nan)
         chart = alt.Chart(df_long).mark_line(point=True).encode(
@@ -73,7 +84,7 @@ def tab_sales_forecast_report(start_date, end_date):
             color=alt.Color('Tipo de Faturamento:N', title='Tipo de Faturamento', legend=alt.Legend(
                 orient="bottom", 
                 direction="horizontal",
-                columns=3
+                columns=2
             )),
             tooltip=[
                 alt.Tooltip('Data:T', title=None, format="%d/%m/%Y"),
