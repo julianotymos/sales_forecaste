@@ -1,6 +1,7 @@
 import streamlit as st
 from read_sales_production_forecast import read_sales_production_forecast
 from datetime import datetime
+import os
 
 # Para exibir imagens, você pode usar um dicionário que mapeia o nome do item para o caminho da imagem.
 # Certifique-se de que as imagens estão em uma pasta acessível (por exemplo, 'images/').
@@ -51,12 +52,10 @@ def tab_sales_production_forecast():
             
             for i, item in enumerate(item_names):
                 with cols[i % 3]:
-                    if item in ITEM_IMAGES:
-                        try:
-                            st.image(ITEM_IMAGES[item], caption=item, width=100)
-                        except FileNotFoundError:
-                            st.warning(f"⚠️ Imagem para {item} não encontrada.")
-                            
+                    if item in ITEM_IMAGES and os.path.exists(ITEM_IMAGES[item]):
+                        st.image(ITEM_IMAGES[item], caption=item, width=100)
+                    else:
+                        st.warning(f"⚠️ Imagem para {item} não encontrada.")
                     st.markdown(f"### {forecast_row[item]:.2f}")
 
         # Se houver dados para dias futuros, exibe a tabela

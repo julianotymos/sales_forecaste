@@ -3,6 +3,8 @@ from read_sales_forecast_report import read_sales_forecast_report
 from datetime import datetime, timedelta
 import altair as alt
 import numpy as np # Importe a biblioteca NumPy para usar np.nan
+import plotly.express as px
+import pandas as pd
 
 def tab_sales_forecast_report(start_date, end_date):
     """
@@ -50,7 +52,7 @@ def tab_sales_forecast_report(start_date, end_date):
 
 # Gráfico comparando todas as métricas de faturamento
         st.subheader("Faturamento Previsto vs. Realizado (Diário) por Canal")
-
+        #print(daily_report_df)
         # Preparando o DataFrame para o gráfico
         df_long = daily_report_df.melt(
             id_vars=['Data', 'Dia da Semana'],
@@ -77,30 +79,68 @@ def tab_sales_forecast_report(start_date, end_date):
         df_long['Tipo de Faturamento'] = df_long['Tipo de Faturamento'].replace(mapeamento_nomes)
 
         # AQUI É A MUDANÇA: Substitua os valores zero por NaN para que não sejam exibidos no gráfico
-        df_long['Valor'] = df_long['Valor'].replace(0, np.nan)
-        chart = alt.Chart(df_long).mark_line(point=True).encode(
-            x=alt.X('Data:T', title=None, axis=alt.Axis(format="%d/%m/%Y")),
-            y=alt.Y('Valor:Q', title=None, axis=alt.Axis(format='.2f')),
-            color=alt.Color('Tipo de Faturamento:N', title='Tipo de Faturamento', legend=alt.Legend(
-                orient="bottom", 
-                direction="horizontal",
-                columns=2
-            )),
-            tooltip=[
-                alt.Tooltip('Data:T', title=None, format="%d/%m/%Y"),
-                alt.Tooltip('Tipo de Faturamento:N'),
-                alt.Tooltip('Valor:Q', title=None, format=".2f")
-            ]
-        ).properties(
-            title="Comparativo de Faturamento Diário por Canal"
-        ).interactive()
+        #df_long['Valor'] = df_long['Valor'].replace(0, np.nan)
+        #chart = alt.Chart(df_long).mark_line(point=True).encode(
+        #    x=alt.X('Data:T', title=None, axis=alt.Axis(format="%d/%m/%Y")),
+        #    y=alt.Y('Valor:Q', title=None, axis=alt.Axis(format='.2f')),
+        #    color=alt.Color('Tipo de Faturamento:N', title='Tipo de Faturamento', legend=alt.Legend(
+        #        orient="bottom", 
+        #        direction="horizontal",
+        #        columns=2
+        #    )),
+        #    tooltip=[
+        #        alt.Tooltip('Data:T', title=None, format="%d/%m/%Y"),
+        #        alt.Tooltip('Tipo de Faturamento:N'),
+        #        alt.Tooltip('Valor:Q', title=None, format=".2f")
+        #    ]
+        #).properties(
+        #    title="Comparativo de Faturamento Diário por Canal"
+        #).interactive()
+#
+        #st.altair_chart(chart, use_container_width=True)
+        df = pd.DataFrame(df_long)
 
-        st.altair_chart(chart, use_container_width=True)
+        fig = px.bar(
+            df,
+            x="Data",
+            y="Valor",
+            color="Tipo de Faturamento",
+            barmode="group",  # "group" = lado a lado, "stack" = empilhado
+            text="Valor"     # mostra o valor em cima das barras
+        )
+
+        # Ajustes visuais
+        fig.update_layout(
+            title="Vendas por Mês e Categoria",
+            xaxis_title="Data",
+            yaxis_title="Valor",
+            legend_title="Tipo de Faturamento",
+            bargap=0.2 ,
+            legend=dict(
+        orientation="h",      # horizontal
+        yanchor="bottom",     # ancora em baixo
+        y=-0.3,               # desloca para fora do gráfico
+        xanchor="center",     # centraliza
+        x=0.5
+    )
+        )
+        for trace in fig.data:
+            if trace.name in ["Previsão Total", "Realizado Total"]:
+                trace.visible = True
+            else:
+                trace.visible = "legendonly"  # ocultar inicialmente, mas mantém na legenda
+        st.plotly_chart(fig, use_container_width=True)
         
         st.markdown("---")
         
         st.subheader("Tabela de Dados Detalhada")
         st.dataframe(daily_report_df.set_index('Data'))
+        
+        #print(df)
+        #print(df_long)
+        # --- Gráfico de colunas agrupadas ---
+       
+
         
     else:
         st.warning("⚠️ Não há dados de previsão de vendas para o período selecionado. Por favor, ajuste o filtro de datas.")
