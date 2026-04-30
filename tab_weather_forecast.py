@@ -78,6 +78,7 @@ def fetch_weather():
         "longitude": LON,
         "hourly": "temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m",
         "timezone": "America/Sao_Paulo",
+        "past_days": 7,
         "forecast_days": 7,
     }
     resp = requests.get(url, params=params, timeout=30)
@@ -123,10 +124,23 @@ def tab_weather_forecast():
     df = build_dataframe(raw)
     today = date.today()
 
-    dates_available = sorted(df["date"].unique())
+    modo = st.radio("Período", ["Previsão", "Histórico"], horizontal=True, index=0)
+
+    all_dates = sorted(df["date"].unique())
+    if modo == "Previsão":
+        dates_available = [d for d in all_dates if d >= today]
+    else:
+        dates_available = sorted([d for d in all_dates if d < today], reverse=True)
+
+    if not dates_available:
+        st.info("Sem dados disponíveis para o período selecionado.")
+        return
+
+    default_index = 0
     selected_date = st.selectbox(
         "Selecionar dia",
         options=dates_available,
+        index=default_index,
         format_func=lambda d: (
             f"Hoje — {d.strftime('%d/%m/%Y')}" if d == today
             else f"Amanhã — {d.strftime('%d/%m/%Y')}" if (d - today).days == 1
