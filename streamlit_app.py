@@ -10,6 +10,7 @@ from typing import List
 from tab_sales_forecast_report import tab_sales_forecast_report
 from tab_sales_production_forecast import tab_sales_production_forecast  # Importe a nova função
 from tab_analysis_date import tab_analysis_date
+from tab_weather_forecast import tab_weather_forecast
 # Show app title and description.
 # --- Início da Aplicação Streamlit ---
 
@@ -36,13 +37,15 @@ if start_date > end_date:
     st.sidebar.error("⚠️ Erro: A data inicial não pode ser posterior à data final.")
 else:
     # --- Criação da Aba Única ---
-    tab_production , tab_forecast = st.tabs([ "Previsão de Produção" , "Previsão de Vendas"])
+    tab_production, tab_forecast, tab_weather = st.tabs(["Previsão de Produção", "Previsão de Vendas", "Previsão do Tempo"])
     with tab_production:
-        # A segunda aba usa a nova função, que não precisa de parâmetros
-        tab_sales_production_forecast() 
+        tab_sales_production_forecast()
 
     with tab_forecast:
         tab_sales_forecast_report(start_date, end_date)
+
+    with tab_weather:
+        tab_weather_forecast()
 
     
 
